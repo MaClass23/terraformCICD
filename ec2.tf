@@ -61,18 +61,6 @@ resource "aws_route_table_association" "MaRTA" {
   route_table_id = aws_route_table.MaRT.id
 }
 
-/*
-   resource "aws_subnet" "subnet" {
-     vpc_id = aws_vpc.Vpc1.id
-     count = 2
-     cidr_block = "${cidrsubnet(var.vpc_cidr,8,count.index)}"
-
-     tags = {
-       Name = "subnet-${count.index}"
-     }
-   }
-   */
-
 #Create Security group
 resource "aws_security_group" "SG1" {
   name        = "allow_All"
@@ -84,7 +72,7 @@ resource "aws_security_group" "SG1" {
       from_port        = 22
       to_port          = 22
       protocol         = "tcp"
-      cidr_blocks      = ["0.0.0.0/0"]
+      cidr_blocks      = [var.my_ip, var.jenkins_ip]
       #ipv6_cidr_blocks = [aws_vpc.main.ipv6_cidr_block]
     }
 
@@ -145,25 +133,20 @@ resource "aws_instance" "ubuntu" {
 
   ami           = var.ami1_id
   instance_type = var.instance_type1
-  count = 3
+  #count = 3
   key_name = var.key_name
   subnet_id = aws_subnet.Public-subnet.id
   security_groups = [aws_security_group.SG1.id]
   associate_public_ip_address = true
 
-  user_data = <<-E0F
-                #!/bin/bash
-                sudo apt update -y
-                sudo apt install apache2 -y
-                sudo systemctl start apache2
-                sudo bash -c 'echo your very first webserver > /var/www/html/index.html'
-                E0F
+  user_data = file("entry-script.sh")
 
   tags = {
-    Name = "webserver-${count.index}"
+    Name = "webserver"
+   # Name = "webserver-${count.index}"
   }
 }
-
+/*
 #Create appservers
 resource "aws_instance" "RedHat" {
 
@@ -178,3 +161,4 @@ resource "aws_instance" "RedHat" {
     Name = "appserver-${count.index}"
   }
 }
+*/
