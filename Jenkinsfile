@@ -3,7 +3,7 @@ node
     def mavenHome = tool name: 'maven3.8.2'
     stage("SCM Clone")
     {
-        git credentialsId: 'Github_credentials', url: 'https://github.com/MaClass23/maven-web-app.git'
+        git credentialsId: 'Github_credentials', url: 'https://github.com/MaClass23/terraformCICD.git'
     }
 
     stage("MavenBuild") {
